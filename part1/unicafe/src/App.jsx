@@ -4,10 +4,12 @@ const Button = ({onClick, text}) => <button onClick={onClick}>{text}</button>
 
 const StatisticLine = ({value, text}) => {
   return (
+    <tbody>
       <tr>
         <td>{text}</td>
         <td>{value}</td>
       </tr>
+    </tbody>
   )
 }
 
