@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 const Listnames = ({name, number}) => <p>{name} {number}</p>
 
@@ -35,31 +36,21 @@ const Persons = ({search}) => {
 }
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { 
-      id: 1,
-      name: 'Arto Hellas',
-      number: '040-1234567'
-    },
-    { 
-      id: 2,
-      name: 'Felipe Dessoy',
-      number: '045-3473123'
-    },    
-    { 
-      id: 3,
-      name: 'Artur de Souza',
-      number: '041-3498530'
-    },    
-    { 
-      id: 4,
-      name: 'Delangel Tabaquara',
-      number: '045-3424579'
-    }
-  ])
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newSearch, setNewSearch] = useState('')
+
+  useEffect(() => {
+    axios
+    .get('http://localhost:3001/persons')
+    .then(response => {
+      console.log('printing response')
+      console.log(response.data)
+      setPersons(response.data)
+    }
+    // could insert a catch here
+  )}, [])
   
   const addNames = (event) => {
     event.preventDefault()
@@ -106,7 +97,7 @@ const App = () => {
       <Filter onChange={handleNewSearch} />
       <Titles title="add a new" />
       <Form
-        onSubmit={addNames}
+        addNames={addNames}
         value1={newName}
         value2={newNumber}
         handleName={handleNameChange}
