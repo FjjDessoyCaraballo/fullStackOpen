@@ -7,7 +7,7 @@ const getAll = () => {
     return request.then(response => response.data)
 }
 
-const addToPhonebook = nameObject => {
+const create = nameObject => {
     const request = axios.post(baseUrl, nameObject)
     return request.then(response => response.data)
 }
@@ -17,4 +17,4 @@ const deleteContact = () => {
     return request.then(response => response.data)
 }
 
-export { getAll, addToPhonebook, deleteContact }
+export default { getAll, create, deleteContact }

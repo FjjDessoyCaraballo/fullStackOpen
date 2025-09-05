@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import contactService from './services/contacts'
 
-const Listnames = ({name, number}) => <p>{name} {number}</p>
+const Listnames = ({name, number, deleteContact}) => <p>{name} {number} <button onClick={deleteContact}>delete</button></p>
 
 const Filter = ({onChange}) => <div>filter shown with: <input onChange={onChange}/></div>
 
@@ -21,7 +21,7 @@ const Form = ({value1, value2, handleName, handleNumber, addNames}) => {
   )
 }
 
-const Persons = ({search}) => {
+const Persons = ({search, deleteContact}) => {
   return (
     <div>
       {search.map((person) => 
@@ -29,6 +29,7 @@ const Persons = ({search}) => {
           key={person.id} 
           name={person.name} 
           number={person.number}
+          deleteContact={deleteContact}
           />
       )}
     </div>
@@ -45,6 +46,9 @@ const App = () => {
     contactService
     .getAll()
     .then(contactList => {setPersons(contactList)})
+    .catch(error => {
+      alert(`Error: ${error}`)
+    })
   }, [])
   
   const addNames = (event) => {
@@ -61,13 +65,34 @@ const App = () => {
     }
 
     const nameObject = { 
-      id: persons.length + 1,
       name: newName,
-      number: newNumber
+      number: newNumber,
+      id: String(persons.length + 1)
     }
-    setPersons(persons.concat(nameObject))
-    setNewName('')
-    setNewNumber('')
+    contactService
+    .create(nameObject)
+    .then(updatedList => {
+      setPersons(persons.concat(updatedList))
+      setNewName('')
+      setNewNumber('')
+    })
+  }
+
+  const handleDeletion = id => {
+    const contactToDelete = persons.find(c => c.id === id)
+    console.log("This is id:", contactToDelete.id)
+    if (window.confirm(`Delete ${contactToDelete.name}?`)) {
+      contactService
+      .deleteContact(id)
+      .then(() => {
+        setPersons(persons.filter(person => person.id !== id))
+
+      })
+      .catch(error => {
+        console.error('Error deleting contact:', error)
+        alert('Failed to delete contact')
+      })
+    }
   }
 
   const handleNameChange = (event) => {
@@ -99,7 +124,7 @@ const App = () => {
         handleNumber={handleNumberChange}
       />    
       <Titles title="Numbers" />
-      <Persons search={refinedSearch} />
+      <Persons search={refinedSearch} deleteContact={handleDeletion} />
     </div>
   )
 }
