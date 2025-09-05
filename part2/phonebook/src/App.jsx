@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import contactService from './services/contacts'
 
 const Listnames = ({name, number}) => <p>{name} {number}</p>
 
@@ -42,15 +42,10 @@ const App = () => {
   const [newSearch, setNewSearch] = useState('')
 
   useEffect(() => {
-    axios
-    .get('http://localhost:3001/persons')
-    .then(response => {
-      console.log('printing response')
-      console.log(response.data)
-      setPersons(response.data)
-    }
-    // could insert a catch here
-  )}, [])
+    contactService
+    .getAll()
+    .then(contactList => {setPersons(contactList)})
+  }, [])
   
   const addNames = (event) => {
     event.preventDefault()
