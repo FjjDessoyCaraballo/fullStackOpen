@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import contactService from './services/contacts'
 
-const Listnames = ({name, number, deleteContact}) => <p>{name} {number} <button onClick={deleteContact}>delete</button></p>
+const Listnames = ({name, number, contactDelete}) => <p>{name} {number} <button onClick={contactDelete}>delete</button></p>
 
 const Filter = ({onChange}) => <div>filter shown with: <input onChange={onChange}/></div>
 
@@ -21,7 +21,7 @@ const Form = ({value1, value2, handleName, handleNumber, addNames}) => {
   )
 }
 
-const Persons = ({search, deleteContact}) => {
+const Persons = ({search, contactDelete}) => {
   return (
     <div>
       {search.map((person) => 
@@ -29,7 +29,7 @@ const Persons = ({search, deleteContact}) => {
           key={person.id} 
           name={person.name} 
           number={person.number}
-          deleteContact={deleteContact}
+          contactDelete={() => contactDelete(person.id)}
           />
       )}
     </div>
@@ -53,34 +53,51 @@ const App = () => {
   
   const addNames = (event) => {
     event.preventDefault()
-
-    if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already in the phonebook. Choose another name.`)
-      return
-    }
-
+    
     if (newName === '' || newNumber === '') {
       alert("No fields in the form can be empty!")
       return
     }
+  
+    const existingContact = persons.find(person => person.name === newName)
 
-    const nameObject = { 
-      name: newName,
-      number: newNumber,
-      id: String(persons.length + 1)
+    if (existingContact) {
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        const updatedContact = {
+          ...existingContact,
+          number: newNumber
+        }
+        contactService
+        .patchContact(existingContact.id, updatedContact)
+        .then(returnedContact => {
+          setPersons(persons.map(person =>
+            person.id !== existingContact.id ? person : returnedContact
+          ))
+          setNewNumber('')
+          setNewName('')
+        })
+        .catch(error => {
+          console.error('Error updating contact:', error)
+        })
+      }
+    } else {
+      const nameObject = { 
+          name: newName,
+          number: newNumber,
+          id: String(persons.length + 1)
+      }
+      contactService
+      .create(nameObject)
+      .then(updatedList => {
+        setPersons(persons.concat(updatedList))
+        setNewName('')
+        setNewNumber('')
+      })
     }
-    contactService
-    .create(nameObject)
-    .then(updatedList => {
-      setPersons(persons.concat(updatedList))
-      setNewName('')
-      setNewNumber('')
-    })
   }
 
-  const handleDeletion = id => {
+  const contactDelete = id => {
     const contactToDelete = persons.find(c => c.id === id)
-    console.log("This is id:", contactToDelete.id)
     if (window.confirm(`Delete ${contactToDelete.name}?`)) {
       contactService
       .deleteContact(id)
@@ -124,7 +141,7 @@ const App = () => {
         handleNumber={handleNumberChange}
       />    
       <Titles title="Numbers" />
-      <Persons search={refinedSearch} deleteContact={handleDeletion} />
+      <Persons search={refinedSearch} contactDelete={contactDelete} />
     </div>
   )
 }
