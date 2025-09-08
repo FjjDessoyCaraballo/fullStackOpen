@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import contactService from './services/contacts'
+import { Notification, ErrorNotification } from './components/Notification'
 
 const Listnames = ({name, number, contactDelete}) => <p>{name} {number} <button onClick={contactDelete}>delete</button></p>
 
@@ -41,13 +42,18 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newSearch, setNewSearch] = useState('')
+  const [message, setMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     contactService
     .getAll()
     .then(contactList => {setPersons(contactList)})
     .catch(error => {
-      alert(`Error: ${error}`)
+      setErrorMessage(`${error}`)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
     })
   }, [])
   
@@ -55,7 +61,10 @@ const App = () => {
     event.preventDefault()
     
     if (newName === '' || newNumber === '') {
-      alert("No fields in the form can be empty!")
+      setErrorMessage("Name nor number should be empty!")
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
       return
     }
   
@@ -73,11 +82,19 @@ const App = () => {
           setPersons(persons.map(person =>
             person.id !== existingContact.id ? person : returnedContact
           ))
+          setMessage(`Contact number for ${existingContact.name} has been updated`)
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
           setNewNumber('')
           setNewName('')
         })
         .catch(error => {
-          console.error('Error updating contact:', error)
+          setErrorMessage(`${existingContact.name} is not in the database.`)
+          console.log(`${error}`)
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
         })
       }
     } else {
@@ -90,6 +107,10 @@ const App = () => {
       .create(nameObject)
       .then(updatedList => {
         setPersons(persons.concat(updatedList))
+        setMessage(`${newName} has been added to the list!`)
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
         setNewName('')
         setNewNumber('')
       })
@@ -103,11 +124,16 @@ const App = () => {
       .deleteContact(id)
       .then(() => {
         setPersons(persons.filter(person => person.id !== id))
-
+        setMessage(`${person => persons.find(id)} has been deleted to the list`)
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
       })
       .catch(error => {
-        console.error('Error deleting contact:', error)
-        alert('Failed to delete contact')
+        setErrorMessage(`${error}`)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
       })
     }
   }
@@ -133,6 +159,8 @@ const App = () => {
       <Titles title="Phonebook" />
       <Filter onChange={handleNewSearch} />
       <Titles title="add a new" />
+      <Notification message={message} />
+      <ErrorNotification message={errorMessage} />
       <Form
         addNames={addNames}
         value1={newName}
