@@ -124,7 +124,7 @@ const App = () => {
       .deleteContact(id)
       .then(() => {
         setPersons(persons.filter(person => person.id !== id))
-        setMessage(`${person => persons.find(id)} has been deleted to the list`)
+        setMessage(`${contactToDelete.name} has been deleted to from the list`)
         setTimeout(() => {
           setMessage(null)
         }, 5000)
