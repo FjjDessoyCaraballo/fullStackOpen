@@ -1,0 +1,35 @@
+{
+  "name": "phonebook",
+  "version": "1.0.0",
+  "description": "backend for phonebook",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \\\"Error: no test specified\\\" && exit 1",
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fjjdessoycaraballo/fullstackopen.git"
+  },
+  "keywords": [
+    "full",
+    "stack",
+    "full",
+    "stack",
+    "open",
+    "Helsinki",
+    "University",
+    "studies",
+    "backend"
+  ],
+  "author": "Felipe Dessoy Caraballo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fjjdessoycaraballo/fullstackopen/issues"
+  },
+  "homepage": "https://github.com/fjjdessoycaraballo/fullstackopen#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
