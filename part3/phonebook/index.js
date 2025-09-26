@@ -3,15 +3,6 @@ const morgan = require('morgan')
 
 const app = express()
 
-// const requestLogger = (request, response, next) => {
-//   console.log('Method:', request.method)
-//   console.log('Path:  ', request.path)
-//   console.log('Body:  ', request.body)
-//   console.log('---')
-//   next()
-// }
-// app.use(requestLogger)
-
 function getRandomInt(max) { return Math.floor(Math.random() * max) }
 
 const generateId = () => {
@@ -23,6 +14,7 @@ morgan.token('personObject', (request) => { return request.createdPerson ? JSON.
 morgan.token('id', (request) => { return request.createdPerson?.id ? request.createdPerson.id.toString() : '' })
 
 app.use(express.json())
+app.use(express.static('dist'))
 app.use(morgan(':method :url :status :id - :response-time ms :personObject'))
 
 let persons = 
